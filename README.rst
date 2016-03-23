@@ -28,10 +28,10 @@ Config format
 
 An **octoconf** YAML file have two restricted keywords:
 
-* ``USED_CONFIG: <node_name>`` in the file root
+* ``USED_CONFIG>: <node_name>`` in the file root
     you can specify the name of default config profile
 
-* ``Base: <node_name>`` in the 2nd level
+* ``<BASE: <node_name>`` in the 2nd level
     this will used for making (merge based) inheritance between profiles
 
 *The profile nodes should be on 1st level!*
@@ -43,31 +43,31 @@ There is an example YAML for demonstration
 
 .. code-block:: yaml
 
-    USED_CONFIG: Fruits
+    USED_CONFIG>: Fruits
 
     Fruits:
       RED: 1
       YELLOW: $VAR1/2
 
     SmallFruits:
-      Base: Fruits
+      <BASE: Fruits
       RED: 3
 
     ExtraSmallFruits:
-      Base: SmallFruits
+      <BASE: SmallFruits
       RED: 4
 
 
 
-Base case
-~~~~~~~~~
+Basic case
+~~~~~~~~~~
 
 Read a multiple config contained YAML, and get profile which was selected by default.
 
 * Example YAML:
     .. code-block:: yaml
 
-        USED_CONFIG: Fruits
+        USED_CONFIG>: Fruits
 
         Fruits:
           Small:
@@ -106,7 +106,7 @@ Read a YAML file which contains variables.
 * Example YAML:
     .. code-block:: yaml
 
-        USED_CONFIG: Fruits
+        USED_CONFIG>: Fruits
 
         Fruits:
           Small:
@@ -145,7 +145,7 @@ Read a multiple config contained YAML, where the selected config is inherited fr
 * Example YAML:
     .. code-block:: yaml
 
-        USED_CONFIG: ExtraSmallFruits
+        USED_CONFIG>: ExtraSmallFruits
 
         Fruits:
           Small:
@@ -154,13 +154,13 @@ Read a multiple config contained YAML, where the selected config is inherited fr
             GREEN: 3
 
         SmallFruits:
-          Base: Fruits
+          <BASE: Fruits
           Small:
             RED: 4
             YELLOW: 5
 
         ExtraSmallFruits:
-          Base: SmallFruits
+          <BASE: SmallFruits
           Small:
             RED: 6
 
