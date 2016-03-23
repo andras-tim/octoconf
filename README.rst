@@ -1,3 +1,5 @@
+|Logo|
+
 octoconf
 ========
 
@@ -193,6 +195,9 @@ Bugs
 
 Bugs or suggestions? Visit the `issue tracker <https://github.com/andras-tim/octoconf/issues>`__.
 
+
+.. |Logo| image:: https://raw.githubusercontent.com/andras-tim/octoconf/master/img/logo_100.png
+    :target: https://raw.githubusercontent.com/andras-tim/octoconf/master/img/logo.png
 
 .. |Build| image:: https://travis-ci.org/andras-tim/octoconf.svg?branch=master
     :target: https://travis-ci.org/andras-tim/octoconf/branches
