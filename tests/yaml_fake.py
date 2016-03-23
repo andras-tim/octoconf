@@ -1,11 +1,13 @@
 import os
 
+from octoconf.octoconf import DEFAULT_CONFIG_SELECTOR
+
 
 def __read_fake_example_yaml(filename):
     with open(os.path.join(os.path.dirname(__file__), '..', 'examples', filename)) as fd:
         lines = fd.read().strip().splitlines()
 
-    lines[0] = 'USED_CONFIG: {used_config}'
+    lines[0] = '%s: {used_config}' % DEFAULT_CONFIG_SELECTOR
     return '\n'.join(lines)
 
 

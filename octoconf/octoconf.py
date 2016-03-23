@@ -4,6 +4,10 @@ from collections import Mapping
 from pprint import pformat
 
 
+DEFAULT_CONFIG_SELECTOR = 'USED_CONFIG>'
+BASE_CONFIG_SELECTOR = '<BASE'
+
+
 class CircularDependencyError(Exception):
     pass
 
@@ -80,7 +84,7 @@ class Octoconf(object):
         substituted_raw_yaml = cls.__substitute_yaml(raw_yaml, variables)
         parsed_yaml = yaml.load(substituted_raw_yaml, Loader=loader)
 
-        used_config = used_config or parsed_yaml['USED_CONFIG']
+        used_config = used_config or parsed_yaml[DEFAULT_CONFIG_SELECTOR]
         inherited_yaml = cls.__inherit_yaml(parsed_yaml, used_config)
 
         return ConfigObject(inherited_yaml[used_config])
@@ -109,15 +113,15 @@ class Octoconf(object):
         parent_stack.append(config_name)
 
         # Has it base?
-        if 'Base' not in parsed_yaml[config_name].keys():
+        if BASE_CONFIG_SELECTOR not in parsed_yaml[config_name].keys():
             return parsed_yaml
 
         # Skipping circular-dependency
-        base_name = parsed_yaml[config_name]['Base']
+        base_name = parsed_yaml[config_name][BASE_CONFIG_SELECTOR]
         if base_name in parent_stack:
             raise CircularDependencyError('Circular dependency detected in YAML! ref_stack={!s}'.format(
                                           str(parent_stack + [base_name])))
-        del parsed_yaml[config_name]['Base']
+        del parsed_yaml[config_name][BASE_CONFIG_SELECTOR]
 
         # Get full config with inherited base config
         parsed_yaml = cls.__inherit_yaml(parsed_yaml, base_name, parent_stack)

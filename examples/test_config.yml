@@ -1,4 +1,4 @@
-USED_CONFIG: ProductionConfig
+USED_CONFIG>: ProductionConfig
 
 # This config YAML has been copied from a Flask based project for make real example.
 # FYI: The unit tests uses this file, so this is a lieve, and working config.
@@ -25,12 +25,12 @@ DefaultConfig:
 
 # This profile is only an alias for the "ProductionConfig"
 UserConfig:
-  Base: ProductionConfig
+  <BASE: ProductionConfig
 
 
 # This profile inherites all properties from the "DefaultConfig"
 ProductionConfig:
-  Base: DefaultConfig
+  <BASE: DefaultConfig
   DebugId: Production
 
   SqlAlchemy:
@@ -38,7 +38,7 @@ ProductionConfig:
 
 
 DevelopmentConfig:
-  Base: DefaultConfig
+  <BASE: DefaultConfig
   DebugId: Development
 
   Flask:
@@ -46,7 +46,7 @@ DevelopmentConfig:
 
 
 TestingConfig:
-  Base: DefaultConfig
+  <BASE: DefaultConfig
   DebugId: Testing
 
   Flask:
@@ -54,7 +54,7 @@ TestingConfig:
 
 
 DependencyTopConfig:
-  Base: DependencyMiddleConfig
+  <BASE: DependencyMiddleConfig
   DebugId: DependencyTop
 
   DependencyLevel:
@@ -62,7 +62,7 @@ DependencyTopConfig:
 
 
 DependencyMiddleConfig:
-  Base: DependencyBottomConfig
+  <BASE: DependencyBottomConfig
   DebugId: DependencyMiddle
 
   DependencyLevel:
@@ -80,20 +80,20 @@ DependencyBottomConfig:
 
 
 MinimalCircularConfig:
-  Base: MinimalCircularConfig
+  <BASE: MinimalCircularConfig
   DebugId: MinimalCircular
 
 
 MultiCircularConfigTop:
-  Base: MultiCircularConfigMiddle
+  <BASE: MultiCircularConfigMiddle
   DebugId: MultiCircularTop
 
 
 MultiCircularConfigMiddle:
-  Base: MultiCircularConfigBottom
+  <BASE: MultiCircularConfigBottom
   DebugId: MultiCircularBottom
 
 
 MultiCircularConfigBottom:
-  Base: MultiCircularConfigTop
+  <BASE: MultiCircularConfigTop
   DebugId: MultiCircularBottom
