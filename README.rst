@@ -215,7 +215,7 @@ Bugs or suggestions? Visit the `issue tracker <https://github.com/andras-tim/oct
     :target: https://github.com/andras-tim/octoconf/blob/master/LICENSE
     :alt: License
 
-.. |CodeQuality| image:: https://www.codacy.com/project/badge/6c9fb93d1b1d4333a8146e8aeb55b11f
+.. |CodeQuality| image:: https://api.codacy.com/project/badge/grade/2f707d3bf0f84a43a1dca6b8789eaba2
     :target: https://www.codacy.com/app/andras-tim/octoconf
     :alt: Code Quality
 .. |CodeClimate| image:: https://codeclimate.com/github/andras-tim/octoconf/badges/gpa.svg
