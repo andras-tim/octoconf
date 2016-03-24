@@ -84,8 +84,8 @@ Read a multiple config contained YAML, and get profile which was selected by def
 
         import octoconf
 
-        yaml = octoconf.read('/test/foo.yaml')
-        print(yaml)
+        config = octoconf.read('/test/foo.yaml')
+        print(config)
 
 * Results:
     .. code-block:: python
@@ -121,8 +121,8 @@ Read a YAML file which contains variables.
 
         import octoconf
 
-        yaml = octoconf.read('/test/foo.yaml', variables={'VAR1': '/test1'})
-        print(yaml)
+        config = octoconf.read('/test/foo.yaml', variables={'VAR1': '/test1'})
+        print(config)
 
 * Results:
     .. code-block:: python
@@ -169,8 +169,8 @@ Read a multiple config contained YAML, where the selected config is inherited fr
 
         import octoconf
 
-        yaml = octoconf.read('/test/foo.yaml')
-        print(yaml)
+        config = octoconf.read('/test/foo.yaml')
+        print(config)
 
 * Results:
     .. code-block:: python
