@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased][unreleased]
+### Changed
+- Replaced ``octoconf.read(<filename>)`` function with ``octoconf.load(<stream>)`` and ``octoconf.loads(<string>)`` for
+    better fit to the standards.
 
 
 ## 0.1.0 - 2016-03-23

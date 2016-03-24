@@ -1,3 +1,4 @@
 from .octoconf import Octoconf as _Octoconf, ConfigObject, CircularDependencyError
 
-read = _Octoconf.read
+load = _Octoconf.load
+loads = _Octoconf.loads

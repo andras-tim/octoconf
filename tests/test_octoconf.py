@@ -2,25 +2,34 @@
 import pytest
 
 import octoconf
-from tests.yaml_fake import get_fake_reader
+from tests.yaml_fake import TEST_CONFIG_YAML_PATH, get_fake_example_yaml
 
 
 class TestOctoconf(object):
-    def octoconf_read(self, yaml_used_config, used_config=None):
-        fake_reader = get_fake_reader(used_config=yaml_used_config)
+    def octoconf_loads(self, yaml_used_config, used_config=None):
+        yaml_content = get_fake_example_yaml(used_config=yaml_used_config)
 
-        return octoconf.read(
-            '/test/foo.yaml',
+        return octoconf.loads(
+            yaml_content,
             variables={
                 'BASEDIR': '/test',
             },
             used_config=used_config,
-            reader=fake_reader
         )
+
+    def octoconf_load(self, used_config=None):
+        with open(TEST_CONFIG_YAML_PATH) as fd:
+            return octoconf.load(
+                fd,
+                variables={
+                    'BASEDIR': '/test',
+                },
+                used_config=used_config,
+            )
 
     @pytest.fixture
     def config(self):
-        return self.octoconf_read(yaml_used_config='DevelopmentConfig')
+        return self.octoconf_load()
 
     data_for_used_config = (
         ('ProductionConfig', 'Production'),
@@ -30,7 +39,7 @@ class TestOctoconf(object):
 
     @pytest.mark.parametrize('yaml_used_config,debug_id', data_for_used_config)
     def test_used_config(self, yaml_used_config, debug_id):
-        config = self.octoconf_read(yaml_used_config)
+        config = self.octoconf_loads(yaml_used_config)
         assert debug_id == config.DebugId
 
     data_for_overridden_used_config = (
@@ -41,7 +50,7 @@ class TestOctoconf(object):
 
     @pytest.mark.parametrize('yaml_used_config,used_config,debug_id', data_for_overridden_used_config)
     def test_overridden_used_config(self, yaml_used_config, used_config, debug_id):
-        config = self.octoconf_read(yaml_used_config, used_config=used_config)
+        config = self.octoconf_loads(yaml_used_config, used_config=used_config)
         assert debug_id == config.DebugId
 
     def test_config_iterator(self, config):
@@ -56,7 +65,7 @@ class TestOctoconf(object):
         assert 'SqlAlchemy' in config
 
     def test_multi_level_inheritance(self):
-        config = self.octoconf_read(yaml_used_config='DependencyTopConfig')
+        config = self.octoconf_loads(yaml_used_config='DependencyTopConfig')
         assert 'DependencyTop' == config.DebugId
         assert {
             1: 'Top',
@@ -66,7 +75,7 @@ class TestOctoconf(object):
 
     def test_single_level_circular_dependency_in_inheritance(self):
         with pytest.raises(octoconf.CircularDependencyError) as excinfo:
-            self.octoconf_read(yaml_used_config='MinimalCircularConfig')
+            self.octoconf_loads(yaml_used_config='MinimalCircularConfig')
 
         assert 'Circular dependency detected in YAML! ref_stack=[' \
             '\'MinimalCircularConfig\', ' \
@@ -75,7 +84,7 @@ class TestOctoconf(object):
 
     def test_multi_level_circular_dependency_in__inheritance(self):
         with pytest.raises(octoconf.CircularDependencyError) as excinfo:
-            self.octoconf_read(yaml_used_config='MultiCircularConfigTop')
+            self.octoconf_loads(yaml_used_config='MultiCircularConfigTop')
 
         assert 'Circular dependency detected in YAML! ref_stack=[' \
             '\'MultiCircularConfigTop\', ' \
@@ -95,7 +104,7 @@ class TestOctoconf(object):
         assert '/test/my_res' == config.App.VALUE_WITH_VARIABLE
 
     def test_config_validity(self):
-        config = self.octoconf_read(yaml_used_config='DevelopmentConfig')
+        config = self.octoconf_loads(yaml_used_config='DevelopmentConfig')
         assert {
             'DebugId': 'Development',
             'App': {
@@ -114,7 +123,7 @@ class TestOctoconf(object):
         } == config.get_dict()
 
     def test_str_dump_validity(self):
-        config = self.octoconf_read(yaml_used_config='DevelopmentConfig')
+        config = self.octoconf_loads(yaml_used_config='DevelopmentConfig')
         expected_config = """{'App': {'UTF8_VALUE': %s,
          'VALUE_WITH_VARIABLE': '/test/my_res'},
  'DebugId': 'Development',
