@@ -1,0 +1,50 @@
+USED_CONFIG>: ProductionConfig
+
+# This config is an example for Flask based projects.
+# There are 4 nodes on the top level, so there are 4 config profiles.
+
+
+# This config contains user's own changes what is inherited from "BaseConfig"
+ProductionConfig:
+  <BASE: DefaultConfig
+
+  App:
+    TITLE: "Amazing Foobar"
+
+  Flask:
+    SERVER_NAME: 0.0.0.0:80
+
+    SQLALCHEMY_DATABASE_URI: mysql+mysqlconnector://me:myPasswd@myserver/mydb
+
+
+# This stock config is the base of other configs
+DefaultConfig:
+  App:
+    NAME: "foobar"
+    TITLE: "Foo Bar"
+
+  Flask:
+    SERVER_NAME: 127.0.0.1:8000
+    DEBUG: False
+    TESTING: False
+
+    SQLALCHEMY_DATABASE_URI: "sqlite:///$SERVER/app.sqlite"
+    SQLALCHEMY_TRACK_MODIFICATIONS: False
+
+
+# This stock config is inherited from "DefaultConfig" and overrides some values for help developement
+DevelopmentConfig:
+  <BASE: DefaultConfig
+
+  Flask:
+    DEBUG: True
+
+    SQLALCHEMY_ECHO: True
+
+
+# This stock config is inherited from "DefaultConfig" and overrides some values for testing
+TestingConfig:
+  <BASE: DefaultConfig
+
+  Flask:
+    TESTING: True
