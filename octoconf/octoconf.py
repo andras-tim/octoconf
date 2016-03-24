@@ -2,6 +2,10 @@ import string
 import yaml
 from collections import Mapping
 from pprint import pformat
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 
 DEFAULT_CONFIG_SELECTOR = 'USED_CONFIG>'
@@ -65,24 +69,36 @@ class ConfigObject(object):
 
 class Octoconf(object):
     @classmethod
-    def read(cls, yaml_path, variables=None, used_config=None, reader=None):
+    def load(cls, yaml_stream, variables=None, used_config=None):
         """
-        :type yaml_path: str
+        Load config from YAML contained IO stream (e.g. file)
+
+        :type yaml_stream: StringIO
         :type variables: dict or None
         :type used_config: str or None
-        :type reader: callable or None
+        :rtype: ConfigObject
+        """
+        yaml_string = yaml_stream.read()
+        return cls.loads(yaml_string, variables=variables, used_config=used_config)
+
+    @classmethod
+    def loads(cls, yaml_string, variables=None, used_config=None):
+        """
+        Load config from YAML contained string
+
+        :type yaml_string: str
+        :type variables: dict or None
+        :type used_config: str or None
         :rtype: ConfigObject
         """
         variables = variables or {}
-        reader = reader or cls.__read_file
 
         loader = yaml.Loader
         if 'CLoader' in dir(yaml):
             loader = yaml.CLoader
 
-        raw_yaml = reader(yaml_path)
-        substituted_raw_yaml = cls.__substitute_yaml(raw_yaml, variables)
-        parsed_yaml = yaml.load(substituted_raw_yaml, Loader=loader)
+        substituted_yaml_string = cls.__substitute_yaml(yaml_string, variables)
+        parsed_yaml = yaml.load(substituted_yaml_string, Loader=loader)
 
         used_config = used_config or parsed_yaml[DEFAULT_CONFIG_SELECTOR]
         inherited_yaml = cls.__inherit_yaml(parsed_yaml, used_config)
@@ -90,13 +106,13 @@ class Octoconf(object):
         return ConfigObject(inherited_yaml[used_config])
 
     @classmethod
-    def __substitute_yaml(cls, raw_yaml, variables):
+    def __substitute_yaml(cls, yaml_string, variables):
         """
-        :type raw_yaml: str
+        :type yaml_string: str
         :type variables: dict
         :rtype: str
         """
-        yaml_template = string.Template(raw_yaml)
+        yaml_template = string.Template(yaml_string)
         substituted_yaml = yaml_template.substitute(variables)
         return substituted_yaml
 
@@ -145,12 +161,3 @@ class Octoconf(object):
             else:
                 base[k] = update[k]
         return base
-
-    @classmethod
-    def __read_file(cls, path):
-        """
-        :type path: str
-        :rtype: str
-        """
-        with open(path, 'r') as fd:
-            return fd.read()
