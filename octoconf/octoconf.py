@@ -16,6 +16,10 @@ class CircularDependencyError(Exception):
     pass
 
 
+class UndefinedVariableError(Exception):
+    pass
+
+
 class ConfigObject(object):
     def __init__(self, data):
         """
@@ -35,10 +39,16 @@ class ConfigObject(object):
         :type name: str
         """
         self.__check(name)
-        if type(self.__data[name]) == dict:
+        if isinstance(self.__data[name], dict):
             return ConfigObject(self.__data[name])
         else:
             return self.__data[name]
+
+    def __setattr__(self, key, value):
+        if key == '_ConfigObject__data':
+            super(ConfigObject, self).__setattr__(key, value)
+        else:
+            self.__setitem__(key, value)
 
     def __iter__(self):
         for each in self.__data.keys():
@@ -48,8 +58,7 @@ class ConfigObject(object):
         """
         :type name: str
         """
-        self.__check(name)
-        return self.__data[name]
+        return self.__getattr__(name)
 
     def __setitem__(self, name, value):
         """
@@ -98,9 +107,15 @@ class Octoconf(object):
             loader = yaml.CLoader
 
         substituted_yaml_string = cls.__substitute_yaml(yaml_string, variables)
-        parsed_yaml = yaml.load(substituted_yaml_string, Loader=loader)
 
-        used_config = used_config or parsed_yaml[DEFAULT_CONFIG_SELECTOR]
+        parsed_yaml = yaml.load(substituted_yaml_string, Loader=loader) or {}
+        used_config = used_config or parsed_yaml.get(DEFAULT_CONFIG_SELECTOR)
+
+        if used_config is None:
+            raise ValueError('used_config was not set')
+        if used_config not in parsed_yaml.keys():
+            raise ValueError('missing used_config referred node: {!r}'.format(used_config))
+
         inherited_yaml = cls.__inherit_yaml(parsed_yaml, used_config)
 
         return ConfigObject(inherited_yaml[used_config])
@@ -113,7 +128,10 @@ class Octoconf(object):
         :rtype: str
         """
         yaml_template = string.Template(yaml_string)
-        substituted_yaml = yaml_template.substitute(variables)
+        try:
+            substituted_yaml = yaml_template.substitute(variables)
+        except KeyError as e:
+            raise UndefinedVariableError('; '.join(e.args))
         return substituted_yaml
 
     @classmethod
