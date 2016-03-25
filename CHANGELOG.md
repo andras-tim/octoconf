@@ -4,10 +4,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased][unreleased]
+
+
+## [0.2.0] - 2016-03-28
+### Added
+- Added [include](https://github.com/andras-tim/octoconf/blob/v0.2.0/docs/features.rst#includes) feature
+
 ### Changed
-- Replaced ``octoconf.read(<filename>)`` function with ``octoconf.load(<stream>)`` and ``octoconf.loads(<string>)`` for
+- Replaced `octoconf.read(<filename>)` function with `octoconf.load(<stream>)` and `octoconf.loads(<string>)` for
     better fit to the standards.
-- Pylint ready code
+- Improved code quality (added some error handlers and tests was rewritten, Pylint ready code)
 
 
 ## 0.1.0 - 2016-03-23
@@ -16,4 +22,5 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - example YAML file
 
 
-[unreleased]: https://github.com/andras-tim/octoconf/compare/v0.1.0...HEAD
+[unreleased]: https://github.com/andras-tim/octoconf/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/andras-tim/octoconf/compare/v0.1.0...v0.2.0
