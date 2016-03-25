@@ -39,24 +39,23 @@ An **octoconf** YAML file have two restricted keywords:
 
 Usage
 -----
-There is an example YAML for demonstration
 
-.. code-block:: yaml
+* You can load config from string with `loads()`:
+    .. code-block:: python
 
-    USED_CONFIG>: Fruits
+        import octoconf
 
-    Fruits:
-      RED: 1
-      YELLOW: $VAR1/2
+        config = octoconf.loads(yaml_string)
+        print(config)
 
-    SmallFruits:
-      <BASE: Fruits
-      RED: 3
+* Or directly from StringIO (e.g. from file) with `load()`:
+    .. code-block:: python
 
-    ExtraSmallFruits:
-      <BASE: SmallFruits
-      RED: 4
+        import octoconf
 
+        with open('config.yml') as fd:
+            config = octoconf.load(fd)
+        print(config)
 
 
 Basic case
@@ -84,8 +83,8 @@ Read a multiple config contained YAML, and get profile which was selected by def
 
         import octoconf
 
-        yaml = octoconf.read('/test/foo.yaml')
-        print(yaml)
+        config = octoconf.loads(yaml_string)
+        print(config)
 
 * Results:
     .. code-block:: python
@@ -121,8 +120,8 @@ Read a YAML file which contains variables.
 
         import octoconf
 
-        yaml = octoconf.read('/test/foo.yaml', variables={'VAR1': '/test1'})
-        print(yaml)
+        config = octoconf.loads(yaml_string, variables={'VAR1': '/test1'})
+        print(config)
 
 * Results:
     .. code-block:: python
@@ -169,8 +168,8 @@ Read a multiple config contained YAML, where the selected config is inherited fr
 
         import octoconf
 
-        yaml = octoconf.read('/test/foo.yaml')
-        print(yaml)
+        config = octoconf.loads(yaml_string)
+        print(config)
 
 * Results:
     .. code-block:: python

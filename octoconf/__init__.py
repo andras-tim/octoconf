@@ -1,3 +1,9 @@
-from .octoconf import Octoconf as _Octoconf, ConfigObject, CircularDependencyError
+from .octoconf import (
+    Octoconf as _Octoconf,
+    ConfigObject,
+    CircularDependencyError,
+    UndefinedVariableError
+)
 
-read = _Octoconf.read
+load = _Octoconf.load
+loads = _Octoconf.loads
