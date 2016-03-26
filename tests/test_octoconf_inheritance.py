@@ -107,7 +107,7 @@ Fruit:
     with pytest.raises(octoconf.CircularDependencyError) as excinfo:
         octoconf.loads(yaml, used_config='Fruit')
 
-    assert 'Circular dependency detected in YAML! ref_stack=[' \
+    assert 'circular dependency detected; ref_chain=[' \
            '\'Fruit\', ' \
            '\'Fruit\'' \
            ']' == str(excinfo.value)
@@ -128,7 +128,7 @@ Tangerine:
     with pytest.raises(octoconf.CircularDependencyError) as excinfo:
         octoconf.loads(yaml, used_config='Tangerine')
 
-    assert 'Circular dependency detected in YAML! ref_stack=[' \
+    assert 'circular dependency detected; ref_chain=[' \
            '\'Tangerine\', ' \
            '\'Orange\', ' \
            '\'Fruit\', ' \
@@ -151,7 +151,7 @@ Tangerine:
     with pytest.raises(octoconf.CircularDependencyError) as excinfo:
         octoconf.loads(yaml, used_config='Tangerine')
 
-    assert 'Circular dependency detected in YAML! ref_stack=[' \
+    assert 'circular dependency detected; ref_chain=[' \
            '\'Tangerine\', ' \
            '\'Orange\', ' \
            '\'Fruit\', ' \

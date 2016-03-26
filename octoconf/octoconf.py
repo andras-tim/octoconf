@@ -165,8 +165,8 @@ class Octoconf(object):
         # Skipping circular-dependency
         base_name = parsed_yaml[config_name][BASE_CONFIG_SELECTOR]
         if base_name in parent_stack:
-            raise CircularDependencyError('Circular dependency detected in YAML! ref_stack={!s}'.format(
-                                          str(parent_stack + [base_name])))
+            raise CircularDependencyError('circular dependency detected; ref_chain={!s}'.format(
+                                          parent_stack + [base_name]))
         del parsed_yaml[config_name][BASE_CONFIG_SELECTOR]
 
         # Get full config with inherited base config
