@@ -7,6 +7,9 @@ try:
 except ImportError:
     from io import StringIO
 
+YAML_LOADER = yaml.Loader
+if 'CLoader' in dir(yaml):
+    YAML_LOADER = yaml.CLoader
 
 DEFAULT_CONFIG_SELECTOR = 'USED_CONFIG>'
 BASE_CONFIG_SELECTOR = '<BASE'
@@ -102,13 +105,9 @@ class Octoconf(object):
         """
         variables = variables or {}
 
-        loader = yaml.Loader
-        if 'CLoader' in dir(yaml):
-            loader = yaml.CLoader
-
         substituted_yaml_string = cls.__substitute_yaml(yaml_string, variables)
 
-        parsed_yaml = yaml.load(substituted_yaml_string, Loader=loader) or {}
+        parsed_yaml = yaml.load(substituted_yaml_string, Loader=YAML_LOADER) or {}
         used_config = used_config or parsed_yaml.get(DEFAULT_CONFIG_SELECTOR)
 
         if used_config is None:
