@@ -105,11 +105,9 @@ class Octoconf(object):
         """
         variables = variables or {}
 
-        substituted_yaml_string = cls.__substitute_yaml(yaml_string, variables)
+        parsed_yaml = cls.__parse_yaml(yaml_string, variables=variables)
 
-        parsed_yaml = yaml.load(substituted_yaml_string, Loader=YAML_LOADER) or {}
         used_config = used_config or parsed_yaml.get(DEFAULT_CONFIG_SELECTOR)
-
         if used_config is None:
             raise ValueError('used_config was not set')
         if used_config not in parsed_yaml.keys():
@@ -118,6 +116,21 @@ class Octoconf(object):
         inherited_yaml = cls.__inherit_yaml(parsed_yaml, used_config)
 
         return ConfigObject(inherited_yaml[used_config])
+
+    @classmethod
+    def __parse_yaml(cls, yaml_string, variables):
+        """
+        :type yaml_string: str
+        :type variables: dict
+        :rtype dict
+        """
+        substituted_yaml_string = cls.__substitute_yaml(yaml_string, variables)
+
+        parsed_yaml = yaml.load(substituted_yaml_string, Loader=YAML_LOADER) or {}
+        if not isinstance(parsed_yaml, dict):
+            raise ValueError('bad formatted YAML; have to be dict on top level')
+
+        return parsed_yaml
 
     @classmethod
     def __substitute_yaml(cls, yaml_string, variables):

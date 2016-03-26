@@ -40,6 +40,13 @@ def test_load_empty_string():
     assert 'used_config was not set' == str(excinfo.value)
 
 
+def test_load_non_profile_based_string():
+    with pytest.raises(ValueError) as excinfo:
+        octoconf.loads('kiwi')
+
+    assert 'bad formatted YAML; have to be dict on top level' == str(excinfo.value)
+
+
 def test_load_strem(minimal_yaml):
     fd = StringIO(minimal_yaml)
     config = octoconf.load(yaml_stream=fd)
