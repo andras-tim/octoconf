@@ -25,6 +25,7 @@ cache:
     - $HOME/.cache/pip
 
 before_install:
+  - pip install --upgrade git+git://github.com/andras-tim/pytest-pylint
   - pip install --upgrade pip setuptools wheel coveralls codacy-coverage
 
 install:
