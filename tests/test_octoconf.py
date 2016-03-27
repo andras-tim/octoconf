@@ -12,19 +12,19 @@ from tests.common import substitute_yaml
 @pytest.fixture
 def minimal_yaml():
     return substitute_yaml("""
-{_default_}: Orange
+        {_default_}: Orange
 
-Orange:
-  orange: 12
-""")
+        Orange:
+          orange: 12
+        """)
 
 
 @pytest.fixture
 def utf8_yaml():
     return substitute_yaml("""
-Orange:
-  utf8: Több hűtőházból kértünk színhúst
-""")
+        Orange:
+          utf8: Több hűtőházból kértünk színhúst
+        """)
 
 
 def test_load_string(minimal_yaml):

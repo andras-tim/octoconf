@@ -6,21 +6,21 @@ from tests.common import substitute_yaml
 
 def get_yaml(used_config):
     yaml = """
-{_default_}: {used_config}
+        {_default_}: {used_config}
 
-Apple:
-  letter: A
+        Apple:
+          letter: A
 
-Banana:
-  letter: B
-"""
+        Banana:
+          letter: B
+        """
     return substitute_yaml(yaml, used_config=used_config)
 
 
 missing_config_selector_yaml = """
-Cherry:
-  letter: C
-"""
+    Cherry:
+      letter: C
+    """
 
 
 def test_raise_when_config_selector_is_missing_from_yaml_and_load():
