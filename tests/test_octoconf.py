@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
+# pylint: disable=misplaced-comparison-constant,redefined-outer-name,no-self-use
+
 import pytest
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
+from io import StringIO
 
 import octoconf
 from tests.common import substitute_yaml
@@ -11,7 +10,7 @@ from tests.common import substitute_yaml
 
 @pytest.fixture
 def minimal_yaml():
-    return substitute_yaml("""
+    return substitute_yaml(u"""
         {_default_}: Orange
 
         Orange:

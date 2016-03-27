@@ -1,3 +1,5 @@
+# pylint: disable=misplaced-comparison-constant,redefined-outer-name,no-self-use
+
 import pytest
 import textwrap
 
@@ -12,7 +14,7 @@ class TestPathOfIncludedFile(object):
         :type included_files: dict
         :type include_cwd: str or None
         """
-        __tracebackhide__ = True
+        __tracebackhide__ = True  # pylint: disable=unused-variable
 
         indented_includes = '\n'.join(['  - {}'.format(include)
                                        for include in main_includes])

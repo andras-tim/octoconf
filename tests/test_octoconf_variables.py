@@ -1,3 +1,5 @@
+# pylint: disable=misplaced-comparison-constant,redefined-outer-name,no-self-use
+
 import pytest
 
 import octoconf

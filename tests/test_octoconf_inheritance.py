@@ -1,3 +1,5 @@
+# pylint: disable=misplaced-comparison-constant,redefined-outer-name,no-self-use
+
 import pytest
 
 import octoconf
@@ -5,7 +7,7 @@ from tests.common import substitute_yaml
 
 
 @pytest.fixture
-def tricky_single_level_overlapped_yaml():
+def single_level_overlapped_yaml():
     return substitute_yaml("""
         Fruit:
           size: 1
@@ -26,8 +28,8 @@ def tricky_single_level_overlapped_yaml():
         """)
 
 
-def test_no_side_effects_for_non_inherited_ascending(tricky_single_level_overlapped_yaml):
-    config = octoconf.loads(tricky_single_level_overlapped_yaml, used_config='Fruit')
+def test_no_side_effects_for_non_inherited_ascending(single_level_overlapped_yaml):
+    config = octoconf.loads(single_level_overlapped_yaml, used_config='Fruit')
     assert {
         'size': 1,
         'color': 2,
@@ -35,8 +37,8 @@ def test_no_side_effects_for_non_inherited_ascending(tricky_single_level_overlap
     } == config.get_dict()
 
 
-def test_single_level_overlapping_in_single_level_inheritance(tricky_single_level_overlapped_yaml):
-    config = octoconf.loads(tricky_single_level_overlapped_yaml, used_config='Orange')
+def test_single_level_overlapping_in_single_level_inheritance(single_level_overlapped_yaml):
+    config = octoconf.loads(single_level_overlapped_yaml, used_config='Orange')
     assert {
         'size': 1,
         'color': 14,
@@ -46,8 +48,8 @@ def test_single_level_overlapping_in_single_level_inheritance(tricky_single_leve
     } == config.get_dict()
 
 
-def test_single_level_overlapping_in_multi_level_inheritance(tricky_single_level_overlapped_yaml):
-    config = octoconf.loads(tricky_single_level_overlapped_yaml, used_config='Tangerine')
+def test_single_level_overlapping_in_multi_level_inheritance(single_level_overlapped_yaml):
+    config = octoconf.loads(single_level_overlapped_yaml, used_config='Tangerine')
     assert {
         'size': 1,
         'color': 14,

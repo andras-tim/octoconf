@@ -1,3 +1,5 @@
+# pylint: disable=invalid-name
+
 from .octoconf import (
     Octoconf as _Octoconf,
     ConfigObject,

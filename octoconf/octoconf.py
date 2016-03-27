@@ -3,14 +3,10 @@ import string
 import yaml
 from collections import Mapping
 from pprint import pformat
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
 
-YAML_LOADER = yaml.Loader
+YamlLoader = yaml.Loader
 if 'CLoader' in dir(yaml):
-    YAML_LOADER = yaml.CLoader
+    YamlLoader = yaml.CLoader
 
 DEFAULT_CONFIG_SELECTOR = 'USED_CONFIG>'
 BASE_CONFIG_SELECTOR = '<BASE'
@@ -91,7 +87,7 @@ class Octoconf(object):
         """
         Load config from YAML contained IO stream (e.g. file)
 
-        :type yaml_stream: StringIO
+        :type yaml_stream: io.StringIO
         :type variables: dict or None
         :type used_config: str or None
         :type include_cwd: str or None
@@ -135,7 +131,7 @@ class Octoconf(object):
         """
         substituted_yaml_string = cls.__substitute_yaml(yaml_string, variables)
 
-        parsed_yaml = yaml.load(substituted_yaml_string, Loader=YAML_LOADER) or {}
+        parsed_yaml = yaml.load(substituted_yaml_string, Loader=YamlLoader) or {}
         if not isinstance(parsed_yaml, dict):
             raise ValueError('bad formatted YAML; have to be dict on top level')
 
@@ -170,8 +166,8 @@ class Octoconf(object):
             abs_path = os.path.abspath(path)
 
             if abs_path in already_included_stack:
-                raise CircularIncludeError('circular include detected; ref_chain={!s}'.format(
-                    already_included_stack + [abs_path]))
+                raise CircularIncludeError('circular include detected; ref_chain={ref_chain!s}'.format(
+                    ref_chain=already_included_stack + [abs_path]))
 
             with open(abs_path) as fd:
                 included_yaml_string = fd.read()
@@ -222,8 +218,9 @@ class Octoconf(object):
         # Skipping circular-dependency
         base_name = parsed_yaml[config_name][BASE_CONFIG_SELECTOR]
         if base_name in parent_stack:
-            raise CircularDependencyError('circular dependency detected; ref_chain={!s}'.format(
-                                          parent_stack + [base_name]))
+            raise CircularDependencyError('circular dependency detected; ref_chain={ref_chain!s}'.format(
+                ref_chain=parent_stack + [base_name]))
+
         del parsed_yaml[config_name][BASE_CONFIG_SELECTOR]
 
         # Get full config with inherited base config
@@ -243,8 +240,7 @@ class Octoconf(object):
         """
         for k, v in update.items():
             if isinstance(v, Mapping):
-                r = cls.__update_dict_recursive(base.get(k, {}), v)
-                base[k] = r
+                base[k] = cls.__update_dict_recursive(base.get(k, {}), v)
             else:
                 base[k] = update[k]
         return base
