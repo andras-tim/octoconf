@@ -87,7 +87,7 @@ class Octoconf(object):
         """
         Load config from YAML contained IO stream (e.g. file)
 
-        :type yaml_stream: io.StringIO
+        :type yaml_stream: io.StringIO or io.TextIOWrapper
         :type variables: dict or None
         :type used_config: str or None
         :type include_cwd: str or None
