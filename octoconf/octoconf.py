@@ -1,3 +1,4 @@
+import os
 import string
 import yaml
 from collections import Mapping
@@ -13,6 +14,7 @@ if 'CLoader' in dir(yaml):
 
 DEFAULT_CONFIG_SELECTOR = 'USED_CONFIG>'
 BASE_CONFIG_SELECTOR = '<BASE'
+INCLUDE_FILE_SPECIFIER = '<INCLUDE'
 
 
 class CircularDependencyError(Exception):
@@ -20,6 +22,10 @@ class CircularDependencyError(Exception):
 
 
 class UndefinedVariableError(Exception):
+    pass
+
+
+class CircularIncludeError(Exception):
     pass
 
 
@@ -81,39 +87,42 @@ class ConfigObject(object):
 
 class Octoconf(object):
     @classmethod
-    def load(cls, yaml_stream, variables=None, used_config=None):
+    def load(cls, yaml_stream, variables=None, used_config=None, include_cwd=None):
         """
         Load config from YAML contained IO stream (e.g. file)
 
         :type yaml_stream: StringIO
         :type variables: dict or None
         :type used_config: str or None
+        :type include_cwd: str or None
         :rtype: ConfigObject
         """
         yaml_string = yaml_stream.read()
-        return cls.loads(yaml_string, variables=variables, used_config=used_config)
+        return cls.loads(yaml_string, variables=variables, used_config=used_config, include_cwd=include_cwd)
 
     @classmethod
-    def loads(cls, yaml_string, variables=None, used_config=None):
+    def loads(cls, yaml_string, variables=None, used_config=None, include_cwd=None):
         """
         Load config from YAML contained string
 
         :type yaml_string: str
         :type variables: dict or None
         :type used_config: str or None
+        :type include_cwd: str or None
         :rtype: ConfigObject
         """
         variables = variables or {}
 
         parsed_yaml = cls.__parse_yaml(yaml_string, variables=variables)
+        populated_yaml = cls.__populate_includes(parsed_yaml, variables=variables, include_cwd=include_cwd)
 
-        used_config = used_config or parsed_yaml.get(DEFAULT_CONFIG_SELECTOR)
+        used_config = used_config or populated_yaml.get(DEFAULT_CONFIG_SELECTOR)
         if used_config is None:
             raise ValueError('used_config was not set')
-        if used_config not in parsed_yaml.keys():
+        if used_config not in populated_yaml.keys():
             raise ValueError('missing used_config referred node: {!r}'.format(used_config))
 
-        inherited_yaml = cls.__inherit_yaml(parsed_yaml, used_config)
+        inherited_yaml = cls.__inherit_yaml(populated_yaml, used_config)
 
         return ConfigObject(inherited_yaml[used_config])
 
@@ -131,6 +140,54 @@ class Octoconf(object):
             raise ValueError('bad formatted YAML; have to be dict on top level')
 
         return parsed_yaml
+
+    @classmethod
+    def __populate_includes(cls, parsed_yaml, variables, include_cwd=None, already_included=None):
+        """
+        :type parsed_yaml: dict
+        :type variables: dict
+        :type include_cwd: str or None
+        :type already_included: list or None
+        :rtype: dict
+        """
+        already_included = already_included or []
+
+        # initialize list of includes
+        includes = parsed_yaml.get(INCLUDE_FILE_SPECIFIER)
+        if isinstance(includes, str):
+            includes = [includes]
+
+        if not includes:
+            return parsed_yaml
+
+        # build base yaml from includes
+        base_yaml = {}
+        for path in includes:
+            already_included_stack = list(already_included)
+
+            if include_cwd:
+                path = os.path.join(include_cwd, path)
+            abs_path = os.path.abspath(path)
+
+            if abs_path in already_included_stack:
+                raise CircularIncludeError('circular include detected; ref_chain={!s}'.format(
+                    already_included_stack + [abs_path]))
+
+            with open(abs_path) as fd:
+                included_yaml_string = fd.read()
+
+            included_parsed_yaml = cls.__parse_yaml(included_yaml_string, variables=variables)
+            already_included_stack.append(abs_path)
+
+            included_populated_yaml = cls.__populate_includes(
+                included_parsed_yaml, variables=variables,
+                include_cwd=os.path.dirname(abs_path),
+                already_included=already_included_stack)
+
+            base_yaml = cls.__update_dict_recursive(base_yaml, included_populated_yaml)
+
+        # update included base with parsed_yaml
+        return cls.__update_dict_recursive(base_yaml, parsed_yaml)
 
     @classmethod
     def __substitute_yaml(cls, yaml_string, variables):

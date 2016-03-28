@@ -12,6 +12,7 @@ Features
 --------
 
 * Allow multiple config profiles in one YAML file
+* Allow include multiple YAML files
 * Overridable profile selection from code for special use-cases (e.g. config for testing)
 * Inheritable config profiles, what makes profile merges by dictionaries. (the native YAML bookmarking is also available)
 * Can use variables in the config file
@@ -26,10 +27,13 @@ Installation
 Config format
 -------------
 
-An **octoconf** YAML file have two restricted keywords:
+An **octoconf** config file is pure YAML file with some reserved keywords:
 
 * ``USED_CONFIG>: <node_name>`` in the file root
     you can specify the name of default config profile
+
+* ``<INCLUDE: <yml_path(s)>`` in the file root
+    this octoconf file(s) will be included
 
 * ``<BASE: <node_name>`` in the 2nd level
     this will used for making (merge based) inheritance between profiles
@@ -40,7 +44,7 @@ An **octoconf** YAML file have two restricted keywords:
 Usage
 -----
 
-* You can load config from string with `loads()`:
+* You can load config from string with ``loads()``:
     .. code-block:: python
 
         import octoconf
@@ -48,7 +52,7 @@ Usage
         config = octoconf.loads(yaml_string)
         print(config)
 
-* Or directly from StringIO (e.g. from file) with `load()`:
+* Or directly from StringIO (e.g. from file) with ``load()``:
     .. code-block:: python
 
         import octoconf
@@ -58,135 +62,30 @@ Usage
         print(config)
 
 
-Basic case
-~~~~~~~~~~
-
-Read a multiple config contained YAML, and get profile which was selected by default.
-
-* Example YAML:
-    .. code-block:: yaml
-
-        USED_CONFIG>: Fruits
-
-        Fruits:
-          Small:
-            RED: 1
-            YELLOW: 2
-
-        Vegetables:
-          Big:
-            RED: 3
-            YELLOW: 4
-
-* Reader code:
-    .. code-block:: python
-
-        import octoconf
-
-        config = octoconf.loads(yaml_string)
-        print(config)
-
-* Results:
-    .. code-block:: python
-
-        {
-            'Small': {
-                'RED': 1,
-                'YELLOW': 2
-            }
-        }
+Please check the `features docs <docs/features.rst>`__ for explain **octoconf**'s features.
 
 
-Variables
-~~~~~~~~~
+Examples YAML files
+~~~~~~~~~~~~~~~~~~~
 
-Read a YAML file which contains variables.
+.. code-block:: yaml
 
-* Example YAML:
-    .. code-block:: yaml
-
-        USED_CONFIG>: Fruits
-
-        Fruits:
-          Small:
-            RED: 1
-            YELLOW: XXX${VAR1}XXX
-
-        Vegetables:
-          GREEN: 2
-
-* Reader code:
-    .. code-block:: python
-
-        import octoconf
-
-        config = octoconf.loads(yaml_string, variables={'VAR1': '/test1'})
-        print(config)
-
-* Results:
-    .. code-block:: python
-
-        {
-            'Small': {
-                'RED': 1,
-                'YELLOW': 'XXX/test1XXX'
-            }
-        }
+    USED_CONFIG>: UserConfig
+    <INCLUDE: vendor.defaults.yml
 
 
-Inheritance
-~~~~~~~~~~~
+    # This config overrides the production preset (from vendor.defaults.yml file)
+    UserConfig:
+      <BASE: ProductionConfig
 
-Read a multiple config contained YAML, where the selected config is inherited from another config.
+      App:
+        TITLE: "Amazing Foobar"
 
-``ExtraSmallFruits`` >> ``SmallFruits`` >> ``Fruits``
-
-* Example YAML:
-    .. code-block:: yaml
-
-        USED_CONFIG>: ExtraSmallFruits
-
-        Fruits:
-          Small:
-            RED: 1
-            YELLOW: 2
-            GREEN: 3
-
-        SmallFruits:
-          <BASE: Fruits
-          Small:
-            RED: 4
-            YELLOW: 5
-
-        ExtraSmallFruits:
-          <BASE: SmallFruits
-          Small:
-            RED: 6
-
-* Reader code:
-    .. code-block:: python
-
-        import octoconf
-
-        config = octoconf.loads(yaml_string)
-        print(config)
-
-* Results:
-    .. code-block:: python
-
-        {
-            'Small': {
-                'RED': 6,
-                'YELLOW': 5
-                'GREEN': 3,
-            }
-        }
+      Flask:
+        SQLALCHEMY_DATABASE_URI: "sqlite:///${SERVER}/app.sqlite"
 
 
-More example
-~~~~~~~~~~~~
-
-Please check the `examples <https://github.com/andras-tim/octoconf/tree/master/examples>`__ directory.
+For more examples, please check the `examples <https://github.com/andras-tim/octoconf/tree/master/examples>`__ directory.
 
 
 Bugs

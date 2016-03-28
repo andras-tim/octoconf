@@ -2,7 +2,8 @@ from .octoconf import (
     Octoconf as _Octoconf,
     ConfigObject,
     CircularDependencyError,
-    UndefinedVariableError
+    UndefinedVariableError,
+    CircularIncludeError,
 )
 
 load = _Octoconf.load
