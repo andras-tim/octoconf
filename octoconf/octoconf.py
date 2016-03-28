@@ -1,15 +1,16 @@
+import os
 import string
 import yaml
 from collections import Mapping
 from pprint import pformat
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
 
+YamlLoader = yaml.Loader
+if 'CLoader' in dir(yaml):
+    YamlLoader = yaml.CLoader
 
 DEFAULT_CONFIG_SELECTOR = 'USED_CONFIG>'
 BASE_CONFIG_SELECTOR = '<BASE'
+INCLUDE_FILE_SPECIFIER = '<INCLUDE'
 
 
 class CircularDependencyError(Exception):
@@ -17,6 +18,10 @@ class CircularDependencyError(Exception):
 
 
 class UndefinedVariableError(Exception):
+    pass
+
+
+class CircularIncludeError(Exception):
     pass
 
 
@@ -78,47 +83,107 @@ class ConfigObject(object):
 
 class Octoconf(object):
     @classmethod
-    def load(cls, yaml_stream, variables=None, used_config=None):
+    def load(cls, yaml_stream, variables=None, used_config=None, include_cwd=None):
         """
         Load config from YAML contained IO stream (e.g. file)
 
-        :type yaml_stream: StringIO
+        :type yaml_stream: io.StringIO
         :type variables: dict or None
         :type used_config: str or None
+        :type include_cwd: str or None
         :rtype: ConfigObject
         """
         yaml_string = yaml_stream.read()
-        return cls.loads(yaml_string, variables=variables, used_config=used_config)
+        return cls.loads(yaml_string, variables=variables, used_config=used_config, include_cwd=include_cwd)
 
     @classmethod
-    def loads(cls, yaml_string, variables=None, used_config=None):
+    def loads(cls, yaml_string, variables=None, used_config=None, include_cwd=None):
         """
         Load config from YAML contained string
 
         :type yaml_string: str
         :type variables: dict or None
         :type used_config: str or None
+        :type include_cwd: str or None
         :rtype: ConfigObject
         """
         variables = variables or {}
 
-        loader = yaml.Loader
-        if 'CLoader' in dir(yaml):
-            loader = yaml.CLoader
+        parsed_yaml = cls.__parse_yaml(yaml_string, variables=variables)
+        populated_yaml = cls.__populate_includes(parsed_yaml, variables=variables, include_cwd=include_cwd)
 
-        substituted_yaml_string = cls.__substitute_yaml(yaml_string, variables)
-
-        parsed_yaml = yaml.load(substituted_yaml_string, Loader=loader) or {}
-        used_config = used_config or parsed_yaml.get(DEFAULT_CONFIG_SELECTOR)
-
+        used_config = used_config or populated_yaml.get(DEFAULT_CONFIG_SELECTOR)
         if used_config is None:
             raise ValueError('used_config was not set')
-        if used_config not in parsed_yaml.keys():
+        if used_config not in populated_yaml.keys():
             raise ValueError('missing used_config referred node: {!r}'.format(used_config))
 
-        inherited_yaml = cls.__inherit_yaml(parsed_yaml, used_config)
+        inherited_yaml = cls.__inherit_yaml(populated_yaml, used_config)
 
         return ConfigObject(inherited_yaml[used_config])
+
+    @classmethod
+    def __parse_yaml(cls, yaml_string, variables):
+        """
+        :type yaml_string: str
+        :type variables: dict
+        :rtype dict
+        """
+        substituted_yaml_string = cls.__substitute_yaml(yaml_string, variables)
+
+        parsed_yaml = yaml.load(substituted_yaml_string, Loader=YamlLoader) or {}
+        if not isinstance(parsed_yaml, dict):
+            raise ValueError('bad formatted YAML; have to be dict on top level')
+
+        return parsed_yaml
+
+    @classmethod
+    def __populate_includes(cls, parsed_yaml, variables, include_cwd=None, already_included=None):
+        """
+        :type parsed_yaml: dict
+        :type variables: dict
+        :type include_cwd: str or None
+        :type already_included: list or None
+        :rtype: dict
+        """
+        already_included = already_included or []
+
+        # initialize list of includes
+        includes = parsed_yaml.get(INCLUDE_FILE_SPECIFIER)
+        if isinstance(includes, str):
+            includes = [includes]
+
+        if not includes:
+            return parsed_yaml
+
+        # build base yaml from includes
+        base_yaml = {}
+        for path in includes:
+            already_included_stack = list(already_included)
+
+            if include_cwd:
+                path = os.path.join(include_cwd, path)
+            abs_path = os.path.abspath(path)
+
+            if abs_path in already_included_stack:
+                raise CircularIncludeError('circular include detected; ref_chain={ref_chain!s}'.format(
+                    ref_chain=already_included_stack + [abs_path]))
+
+            with open(abs_path) as fd:
+                included_yaml_string = fd.read()
+
+            included_parsed_yaml = cls.__parse_yaml(included_yaml_string, variables=variables)
+            already_included_stack.append(abs_path)
+
+            included_populated_yaml = cls.__populate_includes(
+                included_parsed_yaml, variables=variables,
+                include_cwd=os.path.dirname(abs_path),
+                already_included=already_included_stack)
+
+            base_yaml = cls.__update_dict_recursive(base_yaml, included_populated_yaml)
+
+        # update included base with parsed_yaml
+        return cls.__update_dict_recursive(base_yaml, parsed_yaml)
 
     @classmethod
     def __substitute_yaml(cls, yaml_string, variables):
@@ -153,8 +218,9 @@ class Octoconf(object):
         # Skipping circular-dependency
         base_name = parsed_yaml[config_name][BASE_CONFIG_SELECTOR]
         if base_name in parent_stack:
-            raise CircularDependencyError('Circular dependency detected in YAML! ref_stack={!s}'.format(
-                                          str(parent_stack + [base_name])))
+            raise CircularDependencyError('circular dependency detected; ref_chain={ref_chain!s}'.format(
+                ref_chain=parent_stack + [base_name]))
+
         del parsed_yaml[config_name][BASE_CONFIG_SELECTOR]
 
         # Get full config with inherited base config
@@ -174,8 +240,7 @@ class Octoconf(object):
         """
         for k, v in update.items():
             if isinstance(v, Mapping):
-                r = cls.__update_dict_recursive(base.get(k, {}), v)
-                base[k] = r
+                base[k] = cls.__update_dict_recursive(base.get(k, {}), v)
             else:
                 base[k] = update[k]
         return base

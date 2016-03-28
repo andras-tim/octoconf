@@ -1,3 +1,5 @@
+# pylint: disable=misplaced-comparison-constant,redefined-outer-name,no-self-use
+
 import pytest
 
 from octoconf import ConfigObject
@@ -48,12 +50,12 @@ def test_can_get_nested_existing_nodes(config):
 
 def test_can_not_get_not_existing_nodes(config):
     with pytest.raises(AttributeError) as excinfo:
-        config['Avocado']
+        print(config['Avocado'])
 
     assert '\'ConfigObject\' object has no attribute \'Avocado\'' == str(excinfo.value)
 
     with pytest.raises(AttributeError) as excinfo:
-        config.Avocado
+        print(config.Avocado)
 
     assert '\'ConfigObject\' object has no attribute \'Avocado\'' == str(excinfo.value)
 

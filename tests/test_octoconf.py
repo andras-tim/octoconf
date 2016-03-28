@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
+# pylint: disable=misplaced-comparison-constant,redefined-outer-name,no-self-use
+
 import pytest
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
+from io import StringIO
 
 import octoconf
 from tests.common import substitute_yaml
@@ -11,20 +10,20 @@ from tests.common import substitute_yaml
 
 @pytest.fixture
 def minimal_yaml():
-    return substitute_yaml("""
-{_default_}: Orange
+    return substitute_yaml(u"""
+        {_default_}: Orange
 
-Orange:
-  orange: 12
-""")
+        Orange:
+          orange: 12
+        """)
 
 
 @pytest.fixture
 def utf8_yaml():
     return substitute_yaml("""
-Orange:
-  utf8: Több hűtőházból kértünk színhúst
-""")
+        Orange:
+          utf8: Több hűtőházból kértünk színhúst
+        """)
 
 
 def test_load_string(minimal_yaml):
@@ -38,6 +37,13 @@ def test_load_empty_string():
         octoconf.loads('')
 
     assert 'used_config was not set' == str(excinfo.value)
+
+
+def test_load_non_profile_based_string():
+    with pytest.raises(ValueError) as excinfo:
+        octoconf.loads('kiwi')
+
+    assert 'bad formatted YAML; have to be dict on top level' == str(excinfo.value)
 
 
 def test_load_strem(minimal_yaml):
