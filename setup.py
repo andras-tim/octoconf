@@ -27,7 +27,7 @@ def read(*path):
 
 setup(
     name='octoconf',
-    version='0.2.1',
+    version='0.2.2',
     url='https://github.com/andras-tim/octoconf',
     license='GPLv3',
     author='Andras Tim',
