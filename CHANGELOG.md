@@ -7,6 +7,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Updated dependencies
 
+### Fixed
+- Fixed version of PyYAML (reverted to 3.x)
+
 
 ## [0.2.1] - 2018-06-27
 ### Changed
