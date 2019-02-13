@@ -4,6 +4,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased][unreleased]
+### Changed
+- Updated dependencies (fixed [CVE-2017-18342](https://nvd.nist.gov/vuln/detail/CVE-2017-18342))
 
 
 ## [0.2.2] - 2018-07-06
