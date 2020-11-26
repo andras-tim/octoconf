@@ -1,3 +1,5 @@
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fandras-tim%2Foctoconf.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fandras-tim%2Foctoconf?ref=badge_shield)
+
 |Logo|
 
 octoconf
@@ -125,3 +127,6 @@ Bugs or suggestions? Visit the `issue tracker <https://github.com/andras-tim/oct
 .. |IssueStats| image:: https://img.shields.io/github/issues/andras-tim/octoconf.svg
     :target: http://issuestats.com/github/andras-tim/octoconf
     :alt: Issue Stats
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fandras-tim%2Foctoconf.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fandras-tim%2Foctoconf?ref=badge_large)
